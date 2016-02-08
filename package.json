@@ -1,0 +1,23 @@
+{
+  "name": "jse-transpiller",
+  "version": "1.0.0",
+  "description": "",
+  "main": "/src/transpiller.js",
+  "scripts": {
+    "build": "node ./build/index.js"
+  },
+  "keywords": [
+    "jsx",
+    "jse",
+    "transpiller",
+    "parser",
+    "react",
+    "react",
+    "alternative"
+  ],
+  "author": "Anton Vashurkin",
+  "license": "ISC",
+  "devDependencies":{
+    "uglify-js":"^2.6.1"
+  }
+}

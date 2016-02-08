@@ -32,3 +32,12 @@ fs.writeFileSync(
 	uglify.minify(transpiller, {fromString: true}).code,
 	'utf-8'
 );
+
+var jsePipeElm = fs.readFileSync(path.resolve(__dirname, '../source/pipe-elm.js'), 'utf-8');
+jsePipeElm = jsePipeElm.replace(reME, 'return ');
+jsePipeElm = openAMD.replace('%moduleName%', 'JSE') + jsePipeElm + closeAMD;
+fs.writeFileSync(
+	path.resolve(__dirname, '../src/jse-pipe-elm.js'),
+	uglify.minify(jsePipeElm, {fromString: true}).code,
+	'utf-8'
+);

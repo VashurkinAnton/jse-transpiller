@@ -1,5 +1,8 @@
 var jsnTokenizer = require('./tokenizer.js');
+
 var skipNextDelimeter = false;
+var pipeElmName = 'JSE';
+
 function escape(str){
 	return str.replace(/["\\]/ig, function(ch){
 		if(ch === '\\'){
@@ -29,14 +32,14 @@ jsnTokenizer.onExpression(function(text){
 jsnTokenizer.onCloseTag(function(tag){
 	if(tag.rootEnd){
 		skipNextDelimeter = true;
-		return 'return elm.close(); })();';
+		return 'return elm.close(); }).call(this, ' + pipeElmName + ');';
 	}
 });
 
 jsnTokenizer.onOpenTag(function(tag){
 	var text = '';
 	if(tag.root){
-		text += '(function(){var elm = Elm();';
+		text += '(function(Elm){var elm = Elm();';
 	}
 	var attrs = Object.keys(tag.attrs).map(function(key){
 		if(tag.attrs[key]['type'] === 'string'){
@@ -64,12 +67,17 @@ jsnTokenizer.onOpenTag(function(tag){
 		text += ');';
 	}
 	if(tag.selfClosing && tag.root){
-		text += '})();';
+		text += '}).call(this, ' + pipeElmName + ');';
 		skipNextDelimeter = true;
 	}
 	return text;
 });
 
-module.exports = function(source, _returnRoot){
-	return jsnTokenizer.parse(source);
-}
+module.exports = {
+	parse: function(source){
+		return jsnTokenizer.parse(source);
+	},
+	setPipeElmName: function(newPipeElmName){
+		pipeElmName = newPipeElmName;
+	}
+};

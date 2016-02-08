@@ -1,7 +1,44 @@
 # JSE Transpiller
 
 JSE like JSX but has statments in tags. Ligth, fast and very simple.
+## Usage
 
+### Server side (build)
+
+include transpiller for you build manager before other js transpillers. But they can drop on JSE nodes.
+
+### Client side
+
+Include "jse-pipe-elm.js" for you project before JSE code and be happy ^_^.
+
+#### Native type (HTML)
+```
+<script src="path-to-jse-transpiller/src/jse-pipe-elm.js">
+
+```
+
+#### RequireJS
+```
+define(['path-to-jse-transpiller/src/jse-pipe-elm.js'], function(JSE){
+    //some code
+});
+
+```
+
+#### ES6 to ES5 transpillers
+
+```
+import JSE from 'path-to-jse-transpiller/src/jse-pipe-elm.js';
+
+//some code
+```
+
+### Transpiller
+```
+jseTranspiller.setPipeElmName('newNameForPipeElm');// Set custome name for pipe-elm lib.
+
+var jsCode = jseTranspiller(codeWithJSX);
+```
 ## Syntax
 
 Simple usage, same result in variable

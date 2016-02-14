@@ -1,17 +1,18 @@
-function s(i){
-	return (function(){var elm = Elm();elm.open("span");elm.text(i);return elm.close(); })();
-}
-function hr(){
-	return (function(){var elm = Elm();return elm.open.bind({selfClosing:true})("hr");})();
-}
-var n = (function(){var elm = Elm();elm.open("div",{"onclick":function(){console.log('on click')}});
- for(var i = 0; i < 2; i++){
-  var span1 = s(i + 1);
-  var span0 = s(i);
+var JSE = require('../source/pipe-elm.js');
 
-  elm.text(i);elm.text(":Custom text ");elm.text(i + 1);
-  elm.text(span0);
-  elm.text(span1);
-  elm.open.bind({selfClosing:true})("hr");
- }
-return elm.close(); })();
+console.log(JSON.stringify((function(Elm){var elm = Elm();elm.open("span",{"id":1+2,"class":"string"});
+	elm.open("p");
+		for(var i = 0; i < 10; i++){
+			elm.open("span");
+				elm.text("even:");
+				if(i % 2 === 0){
+					elm.text("true");
+				}else{
+					elm.text("false");
+				}
+			elm.close();
+			elm.text((function(Elm){var elm = Elm();return elm.open.bind({selfClosing:true})("hr",{"class":"hr","data-even":i % 2 === 0});}).call(this, JSE));
+		}
+	elm.close();
+	elm.text("Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, repudiandae.");
+return elm.close(); }).call(this, JSE), true, 2));

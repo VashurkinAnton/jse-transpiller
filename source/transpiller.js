@@ -26,14 +26,7 @@ jsnTokenizer.onText(function(text, context){
 });
 
 jsnTokenizer.onExpression(function(text){
-	return 'elm.text('+text+');';
-});
-
-jsnTokenizer.onCloseTag(function(tag){
-	if(tag.rootEnd){
-		skipNextDelimeter = true;
-		return 'return elm.close(); }).call(this, ' + pipeElmName + ');';
-	}
+	return 'elm.text(' + text + ');';
 });
 
 jsnTokenizer.onOpenTag(function(tag){
@@ -41,13 +34,28 @@ jsnTokenizer.onOpenTag(function(tag){
 	if(tag.root){
 		text += '(function(Elm){var elm = Elm();';
 	}
-	var attrs = Object.keys(tag.attrs).map(function(key){
-		if(tag.attrs[key]['type'] === 'string'){
-			return '"'+tag.attrs[key].name+'":"'+tag.attrs[key].value+'"';
+	var oneObjectAttrs = true;
+	var attrs = [];
+	var attrsBuffer = [];
+	for(var i = 0, len = tag.attrs.length; i < len; i++){
+		var attr = tag.attrs[i];
+		if(attr['type'] === 'string'){
+			attrsBuffer.push('"'+attr.name+'":"'+attr.value+'"')
+		}else if(attr['type'] === 'expression'){
+			attrsBuffer.push('"'+attr.name+'":'+attr.value);
 		}else{
-			return '"'+tag.attrs[key].name+'":'+tag.attrs[key].value;
+			attrs.push('{'+attrsBuffer.join(',')+'}');
+			attrs.push(attr.value);
+			
+			attrsBuffer = [];
+			oneObjectAttrs = false;
 		}
-	}).join(',');
+	}
+	if(attrsBuffer.length !== 0){
+		attrs.push('{'+attrsBuffer.join(',')+'}');
+	}
+	attrs = attrs.join(',');
+
 	var bind = [];
 	if(tag.selfClosing){
 		bind.push('selfClosing:true');
@@ -56,21 +64,43 @@ jsnTokenizer.onOpenTag(function(tag){
 		}
 	}
 	bind = bind.join(',');
-	text += 'elm.open';
+	if(tag.native){
+		text += 'elm.open';
+	}else{
+		text += 'elm.component';
+	}
+	
 	if(bind){
 		text += '.bind({'+bind+'})';
 	}
-	text +='("'+tag.name+'"';
+	
+	if(tag.native){
+		text +='("'+tag.name+'"';
+	}else{
+		text += '("'+tag.name+'",'+tag.name;
+	}
 	if(attrs){
-		text += ',{'+attrs+'});';
+		if(oneObjectAttrs){
+			text += ','+attrs+');';
+		}else{
+			text += ',['+attrs+']);';
+		}
 	}else{
 		text += ');';
 	}
 	if(tag.selfClosing && tag.root){
-		text += '}).call(this, ' + pipeElmName + ');';
+		text += '}).call(this, ' + pipeElmName + ')';
 		skipNextDelimeter = true;
 	}
 	return text;
+});
+
+jsnTokenizer.onCloseTag(function(tag){
+	if(tag.root){
+		return 'return elm.close(); }).call(this, ' + pipeElmName + ')';
+	}else{
+		return 'elm.close();';
+	}
 });
 
 module.exports = {

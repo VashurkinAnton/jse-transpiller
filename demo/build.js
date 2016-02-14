@@ -1,4 +1,4 @@
-var jsnTranspiler = require('../source/transpiller.js');
+var jsnTranspiler = require('../source/transpiller.js').parse;
 var fs = require('fs');
 
 var file = fs.readFileSync('./test.jsx', 'utf-8');

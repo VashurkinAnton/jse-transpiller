@@ -1,17 +1,18 @@
-function s(i){
-	return <span>${i}</span>;
-}
-function hr(){
-	return <hr>
-}
-var n = <div onclick={function(){console.log('on click')}} dontRemoveMePleace>
- for(var i = 0; i < 2; i++){
-  var span1 = s(i + 1);
-  var span0 = s(i);
+var JSE = require('../source/pipe-elm.js');
 
-  ${i}<text>:Custom text ${i + 1}</text>
-  ${span0}
-  ${span1}
-  <hr>
- }
-</div>;
+console.log(JSON.stringify(<span id={1+2} class="string">
+	<p>
+		for(var i = 0; i < 10; i++){
+			<span>
+				<text>even:</text>
+				if(i % 2 === 0){
+					<text>true</text>
+				}else{
+					<text>false</text>
+				}
+			</span>
+			${<hr class="hr" data-even={i % 2 === 0}>}
+		}
+	</p>
+	<text>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, repudiandae.</text>
+</span>, true, 2));

@@ -7,11 +7,12 @@ var extend = require('../include/extend.js');
 
 function skipString(source, cursor, removeQuotes){
 	var isString = true, ch;
-	var openQuote = source[cursor];
+	var quote = source[cursor];
 	var string = '';
+
 	cursor += 1;
 	while(isString && (ch = source[cursor])){
-		if(ch === openQuote){
+		if(ch === quote){
 			isString = false;
 			if(removeQuotes){
 				ch = '';
@@ -26,7 +27,7 @@ function skipString(source, cursor, removeQuotes){
 	if(removeQuotes){
 		return {cursor: cursor, string: string};
 	}else{
-		return {cursor: cursor, string: openQuote + string};
+		return {cursor: cursor, string: quote + string};
 	}
 }
 function skipWhiteSpaces(source, cursor){
@@ -39,10 +40,11 @@ function skipWhiteSpaces(source, cursor){
 	}
 	return cursor;
 }
+
 function skipExpression(source, cursor){
-	var ch, quoteCount = 1, string = '';
-	cursor += 1;
-	while(ch = source[cursor]){
+	var expression = tokenazer(source, true, cursor + 1);
+	return {cursor: expression['cursor'], string: expression['text']}
+	/*while(ch = source[cursor]){
 		if(ch === '{'){
 			quoteCount += 1;
 		}else if(ch === '}'){
@@ -54,7 +56,7 @@ function skipExpression(source, cursor){
 		string += ch;
 		cursor += 1;
 	}
-	return {cursor: cursor, string: string};
+	return {cursor: cursor, string: string};*/
 }
 function parseTag(source, cursor, isChild){
 	var part_1 = parseTagName(source, cursor + 1), part_2 = {}, tag = {};
@@ -106,13 +108,30 @@ function parseTagName(source, cursor){
 		}
 	}
 }
+
+var contextIndex = -1;
+var context = [];
+function pushContext(){
+	contextIndex += 1;
+	return context.push({
+		text: '',
+		tagContext: 0,
+		braceCounter: 0, 
+		cursor: 0
+	});
+}
+function popContext(){
+	contextIndex -= 1;
+	return context.pop();
+}
+
 function parseTagAttrs(source, cursor){
 	var stringChars = {"'": 1, '"': 1};
 	var ch, attrs = [];
 	var name = '';
 	var valueOpenCh;
 	var selfClosing = false;
-	var wait = true // if true - wait attr name if flase - wait attr value
+	var isAttrName = true // if true - isAttrName attr name if flase - isAttrName attr value
  	while(ch = source[cursor]){
  		if(ch === '/'){
  			cursor = skipWhiteSpaces(source, cursor + 1);
@@ -121,13 +140,27 @@ function parseTagAttrs(source, cursor){
  			}else{
  				selfClosing = true;
  			}
+ 			if(name !== ''){
+ 				attrs.push({
+ 					name: name,
+ 					value: 'true',
+ 					type: 'expression'
+ 				});
+ 			}
  			break;
  		}else if(ch === '>'){
  			break;
  		}
-		if(wait){
+		if(isAttrName){
 			if((isWhiteSpace[ch] || ch === '=') && name !== ''){
-				wait = false;
+				isAttrName = false;
+			}else if(ch === '{' && name === ''){
+				var res = skipString(source, cursor, true);
+				attrs.push({
+					value: res.string,
+					type: 'extend'
+				});
+				cursor = res.cursor - 1;
 			}else if(!invalidChar[ch]){
 				if(!isWhiteSpace[ch]){
 					name += ch;	
@@ -138,7 +171,6 @@ function parseTagAttrs(source, cursor){
 		}else{
 			cursor = skipWhiteSpaces(source, cursor);
 			ch = source[cursor];
-
 			if(stringChars[ch]){
 				var res = skipString(source, cursor, true);
 				cursor = res.cursor - 1;
@@ -148,7 +180,6 @@ function parseTagAttrs(source, cursor){
 					type: 'string'
 				});
 				name = '';
-				wait = true;
 			}else if(ch === '{'){
 				var res = skipExpression(source, cursor);
 				cursor = res.cursor;
@@ -158,10 +189,15 @@ function parseTagAttrs(source, cursor){
 					type: 'expression'
 				});
 				name = '';
-				wait = true;
 			}else{
-				//error: invalid value
+				attrs.push({
+					name: name,
+					value: 'true',
+					type: 'expression'
+				});
+				name = ch;
 			}
+			isAttrName = true;
 		}
 		cursor += 1;
 	}
@@ -171,99 +207,62 @@ function parseTagAttrs(source, cursor){
 	}
 	return tag;
 }
-function parseExpression(source, cursor){
-	var ch, string = '', quoteCount = 1; cursor += 1;
-	while(ch = source[cursor]){
-		if(stringSymbols[ch]){
-			var res = skipString(source, cursor);
-			string += res.string;
-			cursor = res.cursor;
-			ch = '';
-		}else if(ch === '{'){
-			quoteCount += 1;
-		}else if(ch === '}'){
-			quoteCount -= 1;
-		}
-		if(!quoteCount){
-			cursor += 1;
-			break;
-		}
-		string += ch;
-		cursor += 1;
+function tokenazer(source, insideBraces, cursor){
+	pushContext();
+	if(insideBraces){
+		context[contextIndex]['braceCounter'] += 1;
 	}
-	return {string: string, cursor: cursor};
-}
-var tagContext = 0;
-function tokenazer(source){
-	var cursor = 0, ch;
-	var textToken = '';
+	cursor = cursor || 0;
+	var textToken = '', ch;
 	var isText = 0;
 	while(ch = source[cursor]){
+		if(insideBraces){
+			if(ch === '}'){
+				context[contextIndex]['braceCounter'] -= 1;
+			}else if(ch === '{'){
+				context[contextIndex]['braceCounter'] += 1;
+			}
+			if(!context[contextIndex]['braceCounter']){
+				context[contextIndex]['cursor'] = cursor;
+				if(textToken !== ''){
+					emit('text', textToken);
+				}
+				return popContext();
+			}
+		}
 		if(stringSymbols[ch]){
 			var res = skipString(source, cursor);
 			textToken += res.string;
-			cursor = res.cursor;
+			cursor = res.cursor - 1;
+			ch = '';
+		}if(ch === '$' && source[cursor + 1] === '{'){
+			if(textToken){
+				emit('text', textToken);
+			}
+			var res = skipExpression(source, cursor + 1);
+			emit('expression', res.string);
+			cursor = res.cursor + 1;
+			textToken = '';
 			ch = '';
 		}else if(ch === '<'){
 			var res = parseTag(source, cursor);
 			if(res.tag){
 				cursor = res.cursor + 1;
 				if(textToken){
-					if(!tagContext){
+					if(!isText){
 						emit('text', textToken);
+						textToken = '';
 					}else{
-						var token = '';
-						var skipBuffer = '';
-						var i = 0;
-						var maybeExpression = false;
-						while(ch = textToken[i]){
-							if(stringSymbols[ch]){
-								var _res = skipString(textToken, i);
-								token += _res.string;
-								i = _res.cursor;
-								ch = '';
-							}else if(ch === '$'){
-								maybeExpression = true;
-								skipBuffer += ch;
-								ch = '';
-							}else if(isWhiteSpace[ch] && maybeExpression){
-								skipBuffer += ch;
-							}else if(ch === '{' && maybeExpression){
-								if(!isText){
-									emit('text', token);
-								}else{
-									emit('text', token, true); // text with tag context
-								}
-								var _res = parseExpression(textToken, i);
-								i = _res.cursor;
-								ch = '';
-								maybeExpression = false;
-								emit('expression', _res.string);
-								skipBuffer = '';
-								token = '';
-							}else if(maybeExpression){
-								maybeExpression = false;
-								token += skipBuffer;
-								skipBuffer = '';
-							}
-							token += ch;
-							i += 1;
-						}
-						if(token){
-							if(!isText){
-								emit('text', token);
-							}else{
-								emit('text', token, true); // text with tag context
-							}
-						}
+						emit('text', textToken, true);
+						textToken = '';
 					}
 				}
 				if(res.tag.open){
-					if(!tagContext){
+					if(!context[contextIndex]['tagContext']){
 						res.tag.root = true;
 					}
 					if(!res.tag.selfClosing){
-						tagContext += 1;
+						context[contextIndex]['tagContext'] += 1;
 					}
 					if(res.tag.name !== 'text'){
 						emit('openTag', res.tag);
@@ -272,18 +271,17 @@ function tokenazer(source){
 					}
 				}else{
 					if(!res.tag.selfClosing){
-						tagContext -= 1;
+						context[contextIndex]['tagContext'] -= 1;
 					}
 					if(res.tag.name !== 'text'){
-						if(!tagContext){
-							res.tag.rootEnd = true;
+						if(!context[contextIndex]['tagContext']){
+							res.tag.root = true;
 						}
 						emit('closeTag', res.tag);
 					}else{
 						isText -= 1;
 					}
 				}
-				textToken = '';
 				ch = '';
 			}else{
 				cursor += 1;	
@@ -296,6 +294,8 @@ function tokenazer(source){
 	if(textToken !== ''){
 		emit('text', textToken);
 	}
+	context[contextIndex]['cursor'] = cursor;
+	return popContext();
 }
 
 var listeners = {
@@ -305,12 +305,12 @@ var listeners = {
 	error: [],
 	expression: []
 };
-var parseResult = '';
-function emit(type, data, context){
+
+function emit(type, data, _context){
 	for (var i = 0; i < listeners[type].length; i++) {
-		var listenerResult = listeners[type][i](data, context);
+		var listenerResult = listeners[type][i](data, _context);
 		if(listenerResult){
-			parseResult += listenerResult;
+			context[contextIndex]['text'] += listenerResult;
 		}
 	}
 };
@@ -348,18 +348,9 @@ module.exports = {
 		buffer += string;
 	},
 	end: function(){
-		tokenazer(buffer);
-		
-		var _parseResult = parseResult;
-		parseResult = '';
-		buffer = '';
-		return _parseResult;
+		return tokenazer(buffer)['text'];
 	},
 	parse: function(string){
-		tokenazer(string);
-
-		var _parseResult = parseResult;
-		parseResult = '';
-		return _parseResult;
+		return tokenazer(string)['text'];
 	}
 };

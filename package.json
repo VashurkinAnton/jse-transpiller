@@ -4,7 +4,7 @@
   "description": "JSE like JSX but has statments in tags. Ligth, fast and very simple.",
   "main": "/src/transpiller.js",
   "scripts": {
-    "build": "node ./build/index.js"
+    "build": "node ./build/build.js"
   },
   "repository": {
     "type": "git",

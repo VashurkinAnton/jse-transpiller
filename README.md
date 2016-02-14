@@ -1,6 +1,24 @@
 # JSE Transpiller
 
 JSE like JSX but has statments in tags. Ligth, fast and very simple.
+
+## Shimes
+
+You can use the JSE with the React or transform AST into DOM elements.
+
+### How to use in browser
+
+If you want to use JSE in to browser with React then you need to add next code after including react library like this:
+
+```
+<script src="https://fb.me/react-0.14.7.min.js"></script>
+<script src="https://fb.me/react-dom-0.14.7.min.js"></script>
+<script src="path-to-jse-transpiller/src/jse-pipe-elm.js"></script>
+<script>
+    JSE.shim = {name: 'react', worker: React};
+</script>
+```
+
 ## Usage
 
 ### Server side (build)
@@ -19,7 +37,8 @@ Include "jse-pipe-elm.js" for you project before JSE code and be happy ^_^.
 
 #### RequireJS
 ```
-define(['path-to-jse-transpiller/src/jse-pipe-elm.js'], function(JSE){
+define(['path-to-jse-transpiller/src/jse-pipe-elm.js', 'react'], function(JSE, React){
+    JSE.shim = {name: 'react', worker: React}; // add shim for react
     //some code
 });
 
@@ -27,8 +46,10 @@ define(['path-to-jse-transpiller/src/jse-pipe-elm.js'], function(JSE){
 
 #### ES6 to ES5 transpillers
 
-```
+``
 import JSE from 'path-to-jse-transpiller/src/jse-pipe-elm.js';
+import React from 'react'; // need for shim
+JSE.shim = {name: 'react', worker: React}; // add shim for react
 
 //some code
 ```

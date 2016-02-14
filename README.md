@@ -2,6 +2,10 @@
 
 JSE like JSX but has statments in tags. Ligth, fast and very simple.
 
+## Install with npm
+
+npm install jse-transpiller
+
 ## Shimes
 
 You can use the JSE with the React or transform AST into DOM elements.
@@ -30,6 +34,7 @@ include transpiller for you build manager before other js transpillers. But they
 Include "jse-pipe-elm.js" for you project before JSE code and be happy ^_^.
 
 #### Native type (HTML)
+
 ```
 <script src="path-to-jse-transpiller/src/jse-pipe-elm.js">
 
@@ -46,7 +51,8 @@ define(['path-to-jse-transpiller/src/jse-pipe-elm.js', 'react'], function(JSE, R
 
 #### ES6 to ES5 transpillers
 
-``
+```
+
 import JSE from 'path-to-jse-transpiller/src/jse-pipe-elm.js';
 import React from 'react'; // need for shim
 JSE.shim = {name: 'react', worker: React}; // add shim for react
@@ -55,6 +61,7 @@ JSE.shim = {name: 'react', worker: React}; // add shim for react
 ```
 
 ### Transpiller
+
 ```
 jseTranspiller.setPipeElmName('newNameForPipeElm');// Set custome name for pipe-elm lib.
 
@@ -63,6 +70,7 @@ var jsCode = jseTranspiller(codeWithJSX);
 ## Syntax
 
 Simple usage, same result in variable
+
 ```
 var id = 10;
 var myDiv = <div class="div-class" data-id={id}>

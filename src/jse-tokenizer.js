@@ -1,1 +1,578 @@
-!function(e,r){var t="jseTokenizer",n=[];if("function"==typeof define&&define.amd)define(t,n,r);else if("object"==typeof exports){var o=n.map(function(e){return require(e)});module.exports=r.apply(e,o)}else{var o=n.map(function(r){return e[r]});e[t]=r.apply(e,o)}}(this,function(){function e(e,r,t){var n,o=!0,a=e[r],s="";for(r+=1;o&&(n=e[r]);)n===a?(o=!1,t&&(n="")):"\\"===n&&(s+="\\",r+=1),s+=n,r+=1;return t?{cursor:r,string:s}:{cursor:r,string:a+s}}function r(e,r){for(var t;(t=e[r])&&g[t];)r+=1;return r}function t(e,r){var t=u(e,!0,r+1);return{cursor:t.cursor,string:t.text}}function n(e,r,t){var n=o(e,r+1),a={},s={};return n.name&&(a=i(e,n.cursor)),b(s,n,a),{cursor:s.cursor,tag:s.name?s:null}}function o(e,t){var n,o="",a=!0;for(t=r(e,t),"/"===e[t]&&(a=!1,t=r(e,t+1));(n=e[t])&&!g[n]&&">"!==n;){if(d[n]){o="";break}o+=n,t+=1}if(o){var s={name:o,cursor:t,open:a,selfClosing:!1};return s["native"]=void 0!==p[o],s["native"]?s.selfClosing=!!p[o]:s["native"]=-1!==o.indexOf("-"),s}return{cursor:t}}function a(){return v+=1,x.push({text:"",tagContext:0,braceCounter:0,cursor:0})}function s(){return v-=1,x.pop()}function i(n,o){for(var a,s={"'":1,'"':1},i=[],u="",f=!1,c=!0;a=n[o];){if("/"===a){o=r(n,o+1),">"!==n[o]||(f=!0),""!==u&&i.push({name:u,value:"true",type:"expression"});break}if(">"===a)break;if(c)if(!g[a]&&"="!==a||""===u)if("{"===a&&""===u){var l=e(n,o,!0);i.push({value:l.string,type:"extend"}),o=l.cursor-1}else d[a]||g[a]||(u+=a);else c=!1;else{if(o=r(n,o),a=n[o],s[a]){var l=e(n,o,!0);o=l.cursor-1,i.push({name:u,value:l.string,type:"string"}),u=""}else if("{"===a){var l=t(n,o);o=l.cursor,i.push({name:u,value:l.string,type:"expression"}),u=""}else i.push({name:u,value:"true",type:"expression"}),u=a;c=!0}o+=1}var p={attrs:i,cursor:o};return f&&(p.selfClosing=f),p}function u(r,o,i){a(),o&&(x[v].braceCounter+=1),i=i||0;for(var u,c="",l=0;u=r[i];){if(o&&("}"===u?x[v].braceCounter-=1:"{"===u&&(x[v].braceCounter+=1),!x[v].braceCounter))return x[v].cursor=i,""!==c&&f("text",c),s();if(m[u]){var p=e(r,i);c+=p.string,i=p.cursor,u=""}if("$"===u&&"{"===r[i+1]){c&&f("text",c);var p=t(r,i+1);f("expression",p.string),i=p.cursor+1,c="",u=""}else if("<"===u){var p=n(r,i);p.tag?(i=p.cursor+1,c&&(l?(f("text",c,!0),c=""):(f("text",c),c="")),p.tag.open?(x[v].tagContext||(p.tag.root=!0),p.tag.selfClosing||(x[v].tagContext+=1),"text"!==p.tag.name?f("openTag",p.tag):l+=1):(p.tag.selfClosing||(x[v].tagContext-=1),"text"!==p.tag.name?(x[v].tagContext||(p.tag.root=!0),f("closeTag",p.tag)):l-=1),u=""):i+=1}else i+=1;c+=u}return""!==c&&f("text",c),x[v].cursor=i,s()}function f(e,r,t){for(var n=0;n<h[e].length;n++){var o=h[e][n](r,t);o&&(x[v].text+=o)}}function c(e,r){return r instanceof Function?(h[e].push(r),!0):!1}function l(e,r){var t=h[e].indexOf(r);return-1!==t?(h[e].splice(t,0),!0):!1}var p={a:0,abbr:0,acronym:0,address:0,applet:0,area:1,article:0,aside:0,audio:0,b:0,base:1,basefont:0,bdi:0,bdo:0,big:0,blockquote:0,body:0,br:1,button:0,canvas:0,caption:0,command:1,center:0,cite:0,code:0,col:1,colgroup:0,datalist:0,dd:0,del:0,details:0,dfn:0,dialog:0,dir:0,div:0,dl:0,dt:0,em:0,embed:1,fieldset:0,figcaption:0,figure:0,font:0,footer:0,form:0,frame:0,frameset:0,h1:0,head:0,header:0,hr:1,html:0,i:0,iframe:0,img:1,input:1,ins:0,kbd:0,keygen:1,label:0,legend:0,li:0,link:1,main:0,map:0,mark:0,menu:0,menuitem:0,meta:1,meter:0,nav:0,noframes:0,noscript:0,object:0,ol:0,optgroup:0,option:0,output:0,p:0,param:1,pre:0,progress:0,q:0,rp:0,rt:0,ruby:0,s:0,samp:0,script:0,section:0,select:0,small:0,source:1,span:0,strike:0,strong:0,style:0,sub:0,summary:0,sup:0,table:0,tbody:0,td:0,textarea:0,tfoot:0,th:0,thead:0,time:0,title:0,tr:0,track:1,tt:0,u:0,ul:0,"var":0,video:0,wbr:1},g={"\n":1,"\r":1,"	":1,"\b":1," ":1,"\x0B":1,"\f":1},d={"`":1,"~":1,"!":1,"@":1,"#":1,"%":1,"^":1,"&":1,"*":1,"(":1,")":1,"=":1,"+":1,"\\":1,"|":1,"/":1,",":1,"<":1,">":1,"?":1,'"':1,";":1,":":1,"'":1,"{":1,"}":1,"[":1,"]":1},m={'"':1,"'":1,"`":1},b=function(){for(var e=arguments[0],r=0;r<arguments.length;r++)for(var t=0,n=Object.keys(arguments[r]||{});t<n.length;t++)e[n[t]]=arguments[r][n[t]];return e},v=-1,x=[],h={openTag:[],closeTag:[],text:[],error:[],expression:[]},y="";return{onOpenTag:c.bind(this,"openTag"),onCloseTag:c.bind(this,"closeTag"),onText:c.bind(this,"text"),onError:c.bind(this,"error"),onExpression:c.bind(this,"expression"),offOpenTag:l.bind(this,"openTag"),offCloseTag:l.bind(this,"closeTag"),offText:l.bind(this,"text"),offError:l.bind(this,"error"),offExpression:l.bind(this,"expression"),write:function(e){y+=e},end:function(){return u(y).text},parse:function(e){return u(e).text}}});
+(function (root, factory, getModules) {
+    
+	var __Dependencies = getModules();
+	var require = function(name){
+		return __Dependencies[name];
+	}
+    if (typeof define === 'function' && define.amd) {
+        define([], function(){factory(require)});
+    } else if (typeof module === 'object' && module.exports) {
+        module.exports = factory(require);
+    } else {
+        root.jseTokenizer = factory(require);
+  }
+}(this, function (require) {
+	var nativeTags = require('/jse-transpiller/include/native-tags.js');
+	var isWhiteSpace = require('/jse-transpiller/include/whitespaces.js');
+	var invalidChar = require('/jse-transpiller/include/invalidCharsFromName.js');
+	var stringSymbols = {'"': 1, "'": 1, '`': 1};
+	var extend = require('/jse-transpiller/include/extend.js');
+	function skipString(source, cursor, removeQuotes){
+		var isString = true, ch;
+		var quote = source[cursor];
+		var string = '';
+		cursor += 1;
+		while(isString && (ch = source[cursor])){
+			if(ch === quote){
+				isString = false;
+				if(removeQuotes){
+					ch = '';
+				}
+			}else if(ch === '\\'){
+				string += '\\';
+				cursor += 1;
+			}
+			string += ch;
+			cursor += 1;
+		}
+		if(removeQuotes){
+			return {cursor: cursor, string: string};
+		}else{
+			return {cursor: cursor, string: quote + string};
+		}
+	}
+	function skipWhiteSpaces(source, cursor){
+		var ch;
+		while(ch = source[cursor]){
+			if(!isWhiteSpace[ch]){
+				break;
+			}
+			cursor += 1;
+		}
+		return cursor;
+	}
+	function skipExpression(source, cursor){
+		var expression = tokenazer(source, true, cursor + 1);
+		return {cursor: expression['cursor'], string: expression['text']}
+		/*while(ch = source[cursor]){
+			if(ch === '{'){
+				quoteCount += 1;
+			}else if(ch === '}'){
+				quoteCount -= 1;
+			}
+			if(!quoteCount){
+				break;
+			}
+			string += ch;
+			cursor += 1;
+		}
+		return {cursor: cursor, string: string};*/
+	}
+	function parseTag(source, cursor, isChild){
+		var part_1 = parseTagName(source, cursor + 1), part_2 = {}, tag = {};
+		if(part_1.name){
+			part_2 = parseTagAttrs(source, part_1.cursor);
+		}
+		extend(tag, part_1, part_2);
+		return {cursor: tag.cursor, tag: tag.name ? tag : null};
+	}
+	function parseTagName(source, cursor){
+		var ch, name = '';
+		var open = true;
+		cursor = skipWhiteSpaces(source, cursor);
+		if(source[cursor] === '/'){
+			open = false;
+			cursor = skipWhiteSpaces(source, cursor + 1);
+		}
+		while(ch = source[cursor]){
+			if(isWhiteSpace[ch] || ch === '>'){
+				break;
+			}else if(invalidChar[ch]){
+				//add some err or warning
+				//add cheking if is operator < TODO(1)
+				name = '';
+				break;
+			}
+			
+			name += ch;	
+			cursor += 1;
+		}
+		if(name){
+			var tag = {
+				name: name, 
+				cursor: cursor,
+				open: open,
+				selfClosing: false
+			};
+			tag['native'] = nativeTags[name] !== undefined;
+			if(tag['native']){
+				tag['selfClosing'] = !!nativeTags[name];
+			}else{
+				tag['native'] = name.indexOf('-') !== -1;
+			}
+			return tag
+		}else{
+			return {
+				cursor: cursor
+			}
+		}
+	}
+	var contextIndex = -1;
+	var context = [];
+	function pushContext(){
+		contextIndex += 1;
+		return context.push({
+			text: '',
+			tagContext: 0,
+			braceCounter: 0, 
+			cursor: 0
+		});
+	}
+	function popContext(){
+		contextIndex -= 1;
+		return context.pop();
+	}
+	function parseTagAttrs(source, cursor){
+		var stringChars = {"'": 1, '"': 1};
+		var ch, attrs = [];
+		var name = '';
+		var valueOpenCh;
+		var selfClosing = false;
+		var isAttrName = true // if true - isAttrName attr name if flase - isAttrName attr value
+	 	while(ch = source[cursor]){
+	 		if(ch === '/'){
+	 			cursor = skipWhiteSpaces(source, cursor + 1);
+	 			if(source[cursor] !== '>'){
+	 				//error: symbols after self closing
+	 			}else{
+	 				selfClosing = true;
+	 			}
+	 			if(name !== ''){
+	 				attrs.push({
+	 					name: name,
+	 					value: 'true',
+	 					type: 'expression'
+	 				});
+	 			}
+	 			break;
+	 		}else if(ch === '>'){
+	 			break;
+	 		}
+			if(isAttrName){
+				if((isWhiteSpace[ch] || ch === '=') && name !== ''){
+					isAttrName = false;
+				}else if(ch === '{' && name === ''){
+					var res = skipString(source, cursor, true);
+					attrs.push({
+						value: res.string,
+						type: 'extend'
+					});
+					cursor = res.cursor - 1;
+				}else if(!invalidChar[ch]){
+					if(!isWhiteSpace[ch]){
+						name += ch;	
+					}
+				}else{
+					// error: invalid name
+				}
+			}else{
+				cursor = skipWhiteSpaces(source, cursor);
+				ch = source[cursor];
+				if(stringChars[ch]){
+					var res = skipString(source, cursor, true);
+					cursor = res.cursor - 1;
+					attrs.push({
+						name: name,
+						value: res.string,
+						type: 'string'
+					});
+					name = '';
+				}else if(ch === '{'){
+					var res = skipExpression(source, cursor);
+					cursor = res.cursor;
+					attrs.push({
+						name: name,
+						value: res.string,
+						type: 'expression'
+					});
+					name = '';
+				}else{
+					attrs.push({
+						name: name,
+						value: 'true',
+						type: 'expression'
+					});
+					name = ch;
+				}
+				isAttrName = true;
+			}
+			cursor += 1;
+		}
+		var tag = { attrs: attrs, cursor: cursor };
+		if(selfClosing){
+			tag['selfClosing'] = selfClosing;
+		}
+		return tag;
+	}
+	function tokenazer(source, insideBraces, cursor){
+		pushContext();
+		if(insideBraces){
+			context[contextIndex]['braceCounter'] += 1;
+		}
+		cursor = cursor || 0;
+		var textToken = '', ch;
+		var isText = 0;
+		while(ch = source[cursor]){
+			if(insideBraces){
+				if(ch === '}'){
+					context[contextIndex]['braceCounter'] -= 1;
+				}else if(ch === '{'){
+					context[contextIndex]['braceCounter'] += 1;
+				}
+				if(!context[contextIndex]['braceCounter']){
+					context[contextIndex]['cursor'] = cursor;
+					if(textToken !== ''){
+						emit('text', textToken);
+					}
+					return popContext();
+				}
+			}
+			if(stringSymbols[ch]){
+				var res = skipString(source, cursor);
+				textToken += res.string;
+				cursor = res.cursor - 1;
+				ch = '';
+			}if(ch === '$' && source[cursor + 1] === '{'){
+				if(textToken){
+					emit('text', textToken);
+				}
+				var res = skipExpression(source, cursor + 1);
+				emit('expression', res.string);
+				cursor = res.cursor + 1;
+				textToken = '';
+				ch = '';
+			}else if(ch === '<'){
+				var res = parseTag(source, cursor);
+				if(res.tag){
+					cursor = res.cursor + 1;
+					if(textToken){
+						if(!isText){
+							emit('text', textToken);
+							textToken = '';
+						}else{
+							emit('text', textToken, true);
+							textToken = '';
+						}
+					}
+					if(res.tag.open){
+						if(!context[contextIndex]['tagContext']){
+							res.tag.root = true;
+						}
+						if(!res.tag.selfClosing){
+							context[contextIndex]['tagContext'] += 1;
+						}
+						if(res.tag.name !== 'text'){
+							emit('openTag', res.tag);
+						}else{
+							isText += 1;
+						}
+					}else{
+						if(!res.tag.selfClosing){
+							context[contextIndex]['tagContext'] -= 1;
+						}
+						if(res.tag.name !== 'text'){
+							if(!context[contextIndex]['tagContext']){
+								res.tag.root = true;
+							}
+							emit('closeTag', res.tag);
+						}else{
+							isText -= 1;
+						}
+					}
+					ch = '';
+				}else{
+					cursor += 1;	
+				}
+			}else{
+				cursor += 1;
+			}
+			textToken += ch;
+		}
+		if(textToken !== ''){
+			emit('text', textToken);
+		}
+		context[contextIndex]['cursor'] = cursor;
+		return popContext();
+	}
+	var listeners = {
+		openTag: [], 
+		closeTag: [], 
+		text: [],
+		error: [],
+		expression: []
+	};
+	function emit(type, data, _context){
+		for (var i = 0; i < listeners[type].length; i++) {
+			var listenerResult = listeners[type][i](data, _context);
+			if(listenerResult){
+				context[contextIndex]['text'] += listenerResult;
+			}
+		}
+	};
+	var buffer = '';
+	function addListener(listenerType, listener){
+		if(listener instanceof Function){
+			listeners[listenerType].push(listener);
+			return true;
+		}
+		return false;
+	}
+	function removeListener(listenerType, listener){
+		var listenerIndex = listeners[listenerType].indexOf(listener);
+		if(listenerIndex !== -1){
+			listeners[listenerType].splice(listenerIndex, 0);
+			return true;
+		}
+		return false;
+	}
+	return  {
+		onOpenTag: addListener.bind(this, 'openTag'),
+		onCloseTag: addListener.bind(this, 'closeTag'),
+		onText: addListener.bind(this, 'text'),
+		onError: addListener.bind(this, 'error'),
+		onExpression: addListener.bind(this, 'expression'),
+		offOpenTag: removeListener.bind(this, 'openTag'),
+		offCloseTag: removeListener.bind(this, 'closeTag'),
+		offText: removeListener.bind(this, 'text'),
+		offError: removeListener.bind(this, 'error'),
+		offExpression: removeListener.bind(this, 'expression'),
+		write: function(string){
+			buffer += string;
+		},
+		end: function(){
+			return tokenazer(buffer)['text'];
+		},
+		parse: function(string){
+			return tokenazer(string)['text'];
+		}
+	};
+}, function(){
+	var __Dependencies = {};
+	var require = function(name){
+		return __Dependencies[name];
+	}
+	var _exports = function(path, module){__Dependencies[path] = module};
+	//Module file: /jse-transpiller/include/extend.js
+	(function(){
+		var module = {};
+		Object.defineProperty(module, 'exports', {
+			get: function(){
+				return {};
+			},
+			set: _exports.bind(null, '/jse-transpiller/include/extend.js')
+		});
+		module.exports = function(){
+			var obj = arguments[0];
+			for(var argvIndex = 0; argvIndex < arguments.length; argvIndex++){
+				for(var keyIndex = 0, keys = Object.keys(arguments[argvIndex] || {}); keyIndex < keys.length; keyIndex++){
+					obj[keys[keyIndex]] = arguments[argvIndex][keys[keyIndex]];
+				}
+			}
+			return obj;
+		}
+	}());
+	//Module file: /jse-transpiller/include/invalidCharsFromName.js
+	(function(){
+		var module = {};
+		Object.defineProperty(module, 'exports', {
+			get: function(){
+				return {};
+			},
+			set: _exports.bind(null, '/jse-transpiller/include/invalidCharsFromName.js')
+		});
+		module.exports = {
+			"`": 1,
+			"~": 1,
+			"!": 1,
+			"@": 1,
+			"#": 1,
+			"%": 1,
+			"^": 1,
+			"&": 1,
+			"*": 1,
+			"(": 1,
+			")": 1,
+			"=": 1,
+			"+": 1,
+			"\\": 1,
+			"|": 1,
+			"/": 1,
+			",": 1,
+			"<": 1,
+			">": 1,
+			"?": 1,
+			'"': 1,
+			";": 1,
+			":": 1,
+			"'": 1,
+			"{": 1,
+			"}": 1,
+			"[": 1,
+			"]": 1
+		}
+	}());
+	//Module file: /jse-transpiller/include/whitespaces.js
+	(function(){
+		var module = {};
+		Object.defineProperty(module, 'exports', {
+			get: function(){
+				return {};
+			},
+			set: _exports.bind(null, '/jse-transpiller/include/whitespaces.js')
+		});
+		module.exports = {
+			'\n': 1,
+			'\r': 1,
+			'\t': 1,
+			'\b': 1,
+			' ': 1,
+			'\v': 1,
+			'\f': 1
+		}
+	}());
+	//Module file: /jse-transpiller/include/native-tags.js
+	(function(){
+		var module = {};
+		Object.defineProperty(module, 'exports', {
+			get: function(){
+				return {};
+			},
+			set: _exports.bind(null, '/jse-transpiller/include/native-tags.js')
+		});
+		module.exports = {
+			"a": 0,
+			"abbr": 0,
+			"acronym": 0,
+			"address": 0,
+			"applet": 0,
+			"area": 1,
+			"article": 0,
+			"aside": 0,
+			"audio": 0,
+			"b": 0,
+			"base": 1,
+			"basefont": 0,
+			"bdi": 0,
+			"bdo": 0,
+			"big": 0,
+			"blockquote": 0,
+			"body": 0,
+			"br": 1,
+			"button": 0,
+			"canvas": 0,
+			"caption": 0,
+			"command": 1,
+			"center": 0,
+			"cite": 0,
+			"code": 0,
+			"col": 1,
+			"colgroup": 0,
+			"datalist": 0,
+			"dd": 0,
+			"del": 0,
+			"details": 0,
+			"dfn": 0,
+			"dialog": 0,
+			"dir": 0,
+			"div": 0,
+			"dl": 0,
+			"dt": 0,
+			"em": 0,
+			"embed": 1,
+			"fieldset": 0,
+			"figcaption": 0,
+			"figure": 0,
+			"font": 0,
+			"footer": 0,
+			"form": 0,
+			"frame": 0,
+			"frameset": 0,
+			"h1": 0,
+			"h2": 0,
+			"h3": 0,
+			"h4": 0,
+			"h5": 0,
+			"h6": 0,
+			"head": 0,
+			"header": 0,
+			"hr": 1,
+			"html": 0,
+			"i": 0,
+			"iframe": 0,
+			"img": 1,
+			"input": 1,
+			"ins": 0,
+			"kbd": 0,
+			"keygen": 1,
+			"label": 0,
+			"legend": 0,
+			"li": 0,
+			"link": 1,
+			"main": 0,
+			"map": 0,
+			"mark": 0,
+			"menu": 0,
+			"menuitem": 0,
+			"meta": 1,
+			"meter": 0,
+			"nav": 0,
+			"noframes": 0,
+			"noscript": 0,
+			"object": 0,
+			"ol": 0,
+			"optgroup": 0,
+			"option": 0,
+			"output": 0,
+			"p": 0,
+			"param": 1,
+			"pre": 0,
+			"progress": 0,
+			"q": 0,
+			"rp": 0,
+			"rt": 0,
+			"ruby": 0,
+			"s": 0,
+			"samp": 0,
+			"script": 0,
+			"section": 0,
+			"select": 0,
+			"small": 0,
+			"source": 1,
+			"span": 0,
+			"strike": 0,
+			"strong": 0,
+			"style": 0,
+			"sub": 0,
+			"summary": 0,
+			"sup": 0,
+			"table": 0,
+			"tbody": 0,
+			"td": 0,
+			"textarea": 0,
+			"tfoot": 0,
+			"th": 0,
+			"thead": 0,
+			"time": 0,
+			"title": 0,
+			"tr": 0,
+			"track": 1,
+			"tt": 0,
+			"u": 0,
+			"ul": 0,
+			"var": 0,
+			"video": 0,
+			"wbr": 1
+		};
+	}());
+	return __Dependencies;
+}));

@@ -1,18 +1,16 @@
-var JSE = require('../source/pipe-elm.js');
+function(){
+	function component(){
+		return [
+			<h1><text>Header 1</text></h1>,
+			<h2><text>Header 2</text></h2>,
+			<h3><text>Header 3</text></h3>,
+			<h4><text>Header 4</text></h4>,
+			<h5><text>Header 5</text></h5>,
+			<h6><text>Header 6</text></h6>
+		];
+	}
 
-console.log(JSON.stringify(<span id={1+2} class="string">
-	<p>
-		for(var i = 0; i < 10; i++){
-			<span>
-				<text>even:</text>
-				if(i % 2 === 0){
-					<text>true</text>
-				}else{
-					<text>false</text>
-				}
-			</span>
-			${<hr class="hr" data-even={i % 2 === 0}>}
-		}
-	</p>
-	<text>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Perferendis, repudiandae.</text>
-</span>, true, 2));
+	return <div class='data'>
+		<component />
+	</div>;
+}

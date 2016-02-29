@@ -1,4 +1,4 @@
-var extend = require('../include/extend.js');
+var extend_ = require('../include/extend.js');
 var shimes = {
  'react': function(tree, React, components){
   return React.createElement(tree.isComponent ? components[tree.tag] : tree.tag, tree.attrs, (tree.children || []).map(function(child){

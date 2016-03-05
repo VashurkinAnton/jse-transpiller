@@ -1,8 +1,8 @@
 {
   "name": "jse-transpiller",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "JSE like JSX but has statments in tags. Ligth, fast and very simple.",
-  "main": "/src/transpiler.js",
+  "main": "/src/jse-transpiler.js",
   "scripts": {
     "build": "node ./build.js"
   },

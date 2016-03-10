@@ -232,7 +232,7 @@
 				if(!context[contextIndex]['braceCounter']){
 					context[contextIndex]['cursor'] = cursor;
 					if(textToken !== ''){
-						emit('text', textToken);
+						emit('text', textToken, !!isText);
 					}
 					return popContext();
 				}
@@ -244,7 +244,7 @@
 				ch = '';
 			}if(ch === '$' && source[cursor + 1] === '{'){
 				if(textToken){
-					emit('text', textToken);
+					emit('text', textToken, !!isText);
 				}
 				var res = skipExpression(source, cursor + 1);
 				emit('expression', res.string);
@@ -256,13 +256,8 @@
 				if(res.tag){
 					cursor = res.cursor + 1;
 					if(textToken){
-						if(!isText){
-							emit('text', textToken);
+							emit('text', textToken, !!isText);
 							textToken = '';
-						}else{
-							emit('text', textToken, true);
-							textToken = '';
-						}
 					}
 					if(res.tag.open){
 						if(!context[contextIndex]['tagContext']){
@@ -299,7 +294,7 @@
 			textToken += ch;
 		}
 		if(textToken !== ''){
-			emit('text', textToken);
+			emit('text', textToken, !!isText);
 		}
 		context[contextIndex]['cursor'] = cursor;
 		return popContext();

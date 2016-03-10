@@ -225,7 +225,7 @@ function tokenazer(source, insideBraces, cursor){
 			if(!context[contextIndex]['braceCounter']){
 				context[contextIndex]['cursor'] = cursor;
 				if(textToken !== ''){
-					emit('text', textToken);
+					emit('text', textToken, !!isText);
 				}
 				return popContext();
 			}
@@ -237,7 +237,7 @@ function tokenazer(source, insideBraces, cursor){
 			ch = '';
 		}if(ch === '$' && source[cursor + 1] === '{'){
 			if(textToken){
-				emit('text', textToken);
+				emit('text', textToken, !!isText);
 			}
 			var res = skipExpression(source, cursor + 1);
 			emit('expression', res.string);
@@ -249,13 +249,8 @@ function tokenazer(source, insideBraces, cursor){
 			if(res.tag){
 				cursor = res.cursor + 1;
 				if(textToken){
-					if(!isText){
-						emit('text', textToken);
+						emit('text', textToken, !!isText);
 						textToken = '';
-					}else{
-						emit('text', textToken, true);
-						textToken = '';
-					}
 				}
 				if(res.tag.open){
 					if(!context[contextIndex]['tagContext']){
@@ -292,7 +287,7 @@ function tokenazer(source, insideBraces, cursor){
 		textToken += ch;
 	}
 	if(textToken !== ''){
-		emit('text', textToken);
+		emit('text', textToken, !!isText);
 	}
 	context[contextIndex]['cursor'] = cursor;
 	return popContext();

@@ -64,7 +64,12 @@
 			 	}else if(tree.children[i] instanceof HTMLElement){
 			 		node.appendChild(tree.children[i]);
 			 	}else{
-		 			node.appendChild(shimes['DOM'](tree.children[i], DOM, components)); 
+					var child = shimes['DOM'](tree.children[i], DOM, components);
+					if (Array.isArray(child)) {
+		 				child.forEach(function (c) { node.appendChild(c); });
+					} else {
+		 				node.appendChild(child);
+					}
 			 	}
 		 	}
 	 	}
@@ -92,6 +97,9 @@
 				attrs = extend.apply(this, attrs);
 			}
 			var node = {tag: tagName, attrs: attrs || null, children: []};
+			if (components[tagName]) {
+				node.isComponent = true;
+			}
 			if(elements[current]){
 				elements[current]['children'].push(node);
 			}

@@ -1,8 +1,6 @@
-var JSE = require('../src/jse-pipe-elm.js');
-
 function component(items){
 	return [
-		амввввввввв,
+		<h1><text>Header 1</text></h1>,
 		<h2><text>Header 2</text></h2>,
 		<h3><text>Header 3</text></h3>,
 		<h4><text>Header 4</text></h4>,
@@ -15,4 +13,4 @@ var a = <div class='data'>
 	<component></component>
 </div>;
 
-console.log(a);
+document.body.appendChild(a);

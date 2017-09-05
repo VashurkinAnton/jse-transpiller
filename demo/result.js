@@ -1,6 +1,4 @@
-var JSE = require('../src/jse-pipe-elm.js');
-
-function component(){
+function component(items){
 	return [
 		(function(Elm){var elm = Elm();elm.open("h1");elm.text("Header 1");return elm.close(); }).call(this, JSE),
 		(function(Elm){var elm = Elm();elm.open("h2");elm.text("Header 2");return elm.close(); }).call(this, JSE),
@@ -15,4 +13,4 @@ var a = (function(Elm){var elm = Elm();elm.open("div",{"class":"data"});
 	elm.component("component",component);elm.close();
 return elm.close(); }).call(this, JSE);
 
-console.log(component());
+document.body.appendChild(a);

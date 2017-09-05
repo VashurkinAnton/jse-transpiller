@@ -4,7 +4,8 @@
   "description": "JSE like JSX but has statments in tags. Ligth, fast and very simple.",
   "main": "./source/transpiler.js",
   "scripts": {
-    "build": "node ./build.js"
+    "build": "node ./build.js",
+    "build-demo": "node ./demo/build.js"
   },
   "repository": {
     "type": "git",

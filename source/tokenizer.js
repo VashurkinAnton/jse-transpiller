@@ -241,7 +241,7 @@ function tokenazer(source, insideBraces, cursor){
 			cursor = res.cursor + 1;
 			textToken = '';
 			ch = '';
-		}else if(ch === '<'){
+		}else if(ch === '<' && source[cursor + 1] !== " "){
 			var res = parseTag(source, cursor);
 			if(res.tag){
 				cursor = res.cursor + 1;

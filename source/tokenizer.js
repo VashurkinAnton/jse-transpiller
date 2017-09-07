@@ -17,9 +17,6 @@ function skipString(source, cursor, removeQuotes){
 			if(removeQuotes){
 				ch = '';
 			}
-		}else if(ch === '\\'){
-			string += '\\';
-			cursor += 1;
 		}
 		string += ch;
 		cursor += 1;

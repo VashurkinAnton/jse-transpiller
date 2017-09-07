@@ -22,7 +22,8 @@
   ],
   "author": "Anton Vashurkin",
   "license": "ISC",
-  "devDependencies":{
-    "uglify-js":"^2.6.1"
+  "devDependencies": {
+    "uglify-js": "^2.6.1",
+    "amd-pack": "^1.0.9"
   }
 }
